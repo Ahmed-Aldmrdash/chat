@@ -19,66 +19,48 @@
 
 ---
 
-## التنصيب خطوة بخطوة
-
-### 1) نزّل المشروع وثبّت المكتبات
+## التشغيل السريع
 
 ```bash
+git clone -b claude/personal-chat-app-mx2ubw https://github.com/Ahmed-Aldmrdash/chat.git
+cd chat
 npm install
 ```
 
-### 2) اعمل مشروع على Supabase
+بعد كده محتاج مشروع على Supabase (مجاني):
 
-اعمل مشروع جديد من [supabase.com](https://supabase.com)، وبعدين من
-**SQL Editor** شغّل محتويات الملف `supabase/schema.sql` كله مرة واحدة.
+**1) اعمل المشروع** — من [supabase.com](https://supabase.com) → New project.
+اختار Region قريب منك، وخزّن الـ Database Password عندك.
 
-> ⚠️ **قبل ما تشغّل الـ SQL:** غيّر `'your-admin-email@example.com'` اللي جوه دالة
-> `public.is_admin()` لإيميل الأدمن الحقيقي. لازم يكون نفس القيمة اللي هتحطها في
-> `ADMIN_EMAIL` بالظبط.
-
-الملف ده بيعمل كل حاجة: الجداول، الفهارس، سياسات الـ RLS، الـ triggers، الـ RPC
-functions، الـ storage bucket، وبيفعّل الـ Realtime على جدول الرسايل.
-
-### 3) اعمل حساب الأدمن
-
-من **Supabase Dashboard → Authentication → Users → Add user**:
-
-- الإيميل: إيميلك الحقيقي (نفس `ADMIN_EMAIL`)
-- كلمة السر: اختار واحدة قوية
-- فعّل **Auto Confirm User**
-
-> صف الـ `contacts` بتاع الأدمن بيتعمل تلقائيًا أول ما تفتح `/admin`.
-
-### 4) ولّد مفاتيح الإشعارات
+**2) ظبّط الإعدادات:**
 
 ```bash
-npm run generate-vapid
+npm run setup
 ```
 
-### 5) ظبّط متغيرات البيئة
+هيسألك على ٣ حاجات من **Supabase → Project Settings → API** (الـ Project URL،
+والـ anon key، والـ service_role key) وعلى إيميل الأدمن. وهو اللي هيتكفّل بالباقي:
+بيولّد مفاتيح الإشعارات والـ CRON_SECRET، بيكتب `.env.local`، وبيجهّز ملف
+`supabase/schema.ready.sql` وفيه إيميلك متحطوط في مكانه.
 
-انسخ `.env.example` لـ `.env.local` واملاه:
+**3) اعمل الجداول** — افتح `supabase/schema.ready.sql`، انسخه كله، والزقه في
+**Supabase → SQL Editor → New query** واضغط Run. المفروض يقول Success.
 
-```bash
-cp .env.example .env.local
-```
+**4) اعمل حساب الأدمن** — من **Authentication → Users → Add user → Create new user**:
+الإيميل اللي كتبته في الخطوة 2، وكلمة سر قوية، و**فعّل Auto Confirm User**.
 
-| المتغير | من فين تجيبه |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API (anon public) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API (service_role) — **سيرفر بس** |
-| `ADMIN_EMAIL` | إيميل حساب الأدمن (نفس اللي في `is_admin()`) |
-| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | من `npm run generate-vapid` |
-| `CRON_SECRET` | أي نص عشوائي طويل — `openssl rand -hex 32` |
-
-### 6) شغّل
+**5) شغّل:**
 
 ```bash
 npm run dev
 ```
 
-افتح `http://localhost:3000` وسجّل دخول بإيميل الأدمن وكلمة السر.
+افتح <http://localhost:3000> وسجّل دخول بإيميل الأدمن.
+
+> **مش عايز السكريبت؟** انسخ `.env.example` لـ `.env.local` واملاه بإيدك،
+> وولّد مفاتيح الإشعارات بـ `npm run generate-vapid`، وغيّر
+> `your-admin-email@example.com` جوه دالة `is_admin()` في `supabase/schema.sql`
+> قبل ما تشغّله.
 
 ---
 
@@ -201,6 +183,7 @@ supabase/schema.sql   # قاعدة البيانات كاملة
 ## أوامر مفيدة
 
 ```bash
+npm run setup           # إعداد .env.local والمفاتيح
 npm run dev             # تشغيل محلي
 npm run build           # بناء للإنتاج
 npm run start           # تشغيل البناء

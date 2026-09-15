@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getMediaSignedUrl } from "@/actions/media";
+import { getCachedMediaUrl } from "@/lib/media-cache";
 import { formatDuration } from "@/lib/utils";
 import { PauseIcon, PlayIcon, SpinnerIcon } from "./Icons";
 
@@ -59,13 +59,13 @@ export function VoicePlayer({ messageId, outgoing }: { messageId: string; outgoi
 
     if (!url) {
       setLoading(true);
-      const result = await getMediaSignedUrl(messageId);
+      const result = await getCachedMediaUrl(messageId);
       setLoading(false);
       if (!result.ok) {
         setError(result.error);
         return;
       }
-      setUrl(result.data.url);
+      setUrl(result.url);
     }
 
     setWantsPlay(true);

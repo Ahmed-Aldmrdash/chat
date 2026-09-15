@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMediaSignedUrl } from "@/actions/media";
+import { getCachedMediaUrl } from "@/lib/media-cache";
 import { SpinnerIcon } from "./Icons";
 
 /**
@@ -18,9 +18,9 @@ export function ChatImage({ messageId, alt }: { messageId: string; alt?: string 
     let cancelled = false;
 
     (async () => {
-      const result = await getMediaSignedUrl(messageId);
+      const result = await getCachedMediaUrl(messageId);
       if (cancelled) return;
-      if (result.ok) setUrl(result.data.url);
+      if (result.ok) setUrl(result.url);
       else setError(result.error);
     })();
 

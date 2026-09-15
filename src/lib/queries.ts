@@ -35,7 +35,7 @@ export async function loadConversationSummaries(
 
   const ids = convos.map((c) => c.id);
 
-  const [participantsRes, messagesRes] = await Promise.all([
+  const [participantsRes, messagesRes, tagRes] = await Promise.all([
     supabase
       .from("conversation_participants")
       .select("conversation_id, contact_id, contacts(*)")
@@ -48,6 +48,9 @@ export async function loadConversationSummaries(
       .in("conversation_id", ids)
       .order("created_at", { ascending: false })
       .limit(400),
+    // جدول التاجات صغير، فبنجيبه كله مع الباقي بدل رحلة تالتة مستنية
+    // الـ participants عشان تعرف الـ ids
+    supabase.from("contact_tags").select("*"),
   ]);
 
   type ParticipantRow = {
@@ -60,14 +63,7 @@ export async function loadConversationSummaries(
   // بنجيب الأعمدة اللي القايمة بتعرضها بس، فالنوع أضيق من Message الكامل
   const messages = (messagesRes.data ?? []) as unknown as Message[];
 
-  // التاجات بتاعة كل الأطراف اللي ظهرت
-  const contactIds = Array.from(new Set(participants.map((p) => p.contact_id)));
-  const { data: tagRows } = await supabase
-    .from("contact_tags")
-    .select("*")
-    .in("contact_id", contactIds.length ? contactIds : ["00000000-0000-0000-0000-000000000000"]);
-
-  const tags = (tagRows ?? []) as ContactTag[];
+  const tags = (tagRes.data ?? []) as ContactTag[];
 
   const othersByConversation = new Map<string, Contact[]>();
   for (const row of participants) {

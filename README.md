@@ -57,6 +57,9 @@ npm run dev
 
 افتح <http://localhost:3000> وسجّل دخول بإيميل الأدمن.
 
+> **حاجة مش شغالة؟** شغّل `npm run doctor` — بيفحص المفاتيح والجداول ومكان
+> التخزين وحساب الأدمن، وبيقولك بالظبط الناقص إيه وإزاي تظبطه.
+
 > **مش عايز السكريبت؟** انسخ `.env.example` لـ `.env.local` واملاه بإيدك،
 > وولّد مفاتيح الإشعارات بـ `npm run generate-vapid`، وغيّر
 > `your-admin-email@example.com` جوه دالة `is_admin()` في `supabase/schema.sql`
@@ -184,6 +187,7 @@ supabase/schema.sql   # قاعدة البيانات كاملة
 
 ```bash
 npm run setup           # إعداد .env.local والمفاتيح
+npm run doctor          # فحص الإعداد ويقولك الناقص إيه
 npm run dev             # تشغيل محلي
 npm run build           # بناء للإنتاج
 npm run start           # تشغيل البناء

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "setup": "node scripts/setup.mjs",
+    "doctor": "node scripts/doctor.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src",

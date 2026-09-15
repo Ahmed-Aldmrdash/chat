@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/send-scheduled",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/delete-expired",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

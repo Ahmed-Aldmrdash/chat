@@ -1,0 +1,191 @@
+@import "tailwindcss";
+
+/* الـ Dark Mode بيشتغل بكلاس .dark على الـ <html> (مش بإعداد النظام)
+   عشان زرار التبديل يقدر يتحكم فيه ويتحفظ في localStorage */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   ألوان واتساب — CSS Variables (Light)
+   ========================================================================== */
+:root {
+  --wa-bg: #f0f2f5;
+  --wa-panel: #ffffff;
+  --wa-panel-header: #f0f2f5;
+  --wa-chat-bg: #efeae2;
+  --wa-bubble-out: #d9fdd3;
+  --wa-bubble-in: #ffffff;
+  --wa-text: #111b21;
+  --wa-text-secondary: #667781;
+  --wa-border: #e9edef;
+  --wa-primary: #00a884;
+  --wa-primary-dark: #008069;
+  --wa-primary-contrast: #ffffff;
+  --wa-hover: #f5f6f6;
+  --wa-active: #f0f2f5;
+  --wa-tick-read: #53bdeb;
+  --wa-danger: #ea0038;
+  --wa-input: #ffffff;
+  --wa-overlay: rgba(11, 20, 26, 0.7);
+  --wa-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+}
+
+.dark {
+  --wa-bg: #0b141a;
+  --wa-panel: #111b21;
+  --wa-panel-header: #202c33;
+  --wa-chat-bg: #0b141a;
+  --wa-bubble-out: #005c4b;
+  --wa-bubble-in: #202c33;
+  --wa-text: #e9edef;
+  --wa-text-secondary: #8696a0;
+  --wa-border: #222d34;
+  --wa-primary: #00a884;
+  --wa-primary-dark: #00a884;
+  --wa-primary-contrast: #111b21;
+  --wa-hover: #202c33;
+  --wa-active: #2a3942;
+  --wa-tick-read: #53bdeb;
+  --wa-danger: #f15c6d;
+  --wa-input: #2a3942;
+  --wa-overlay: rgba(0, 0, 0, 0.8);
+  --wa-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.3);
+}
+
+/* ربط المتغيرات بـ Tailwind — inline عشان تفضل CSS vars وتتغيّر مع .dark */
+@theme inline {
+  --color-wa-bg: var(--wa-bg);
+  --color-wa-panel: var(--wa-panel);
+  --color-wa-panel-header: var(--wa-panel-header);
+  --color-wa-chat-bg: var(--wa-chat-bg);
+  --color-wa-bubble-out: var(--wa-bubble-out);
+  --color-wa-bubble-in: var(--wa-bubble-in);
+  --color-wa-text: var(--wa-text);
+  --color-wa-secondary: var(--wa-text-secondary);
+  --color-wa-border: var(--wa-border);
+  --color-wa-primary: var(--wa-primary);
+  --color-wa-primary-dark: var(--wa-primary-dark);
+  --color-wa-primary-contrast: var(--wa-primary-contrast);
+  --color-wa-hover: var(--wa-hover);
+  --color-wa-active: var(--wa-active);
+  --color-wa-tick: var(--wa-tick-read);
+  --color-wa-danger: var(--wa-danger);
+  --color-wa-input: var(--wa-input);
+
+  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
+    "Noto Kufi Arabic", sans-serif;
+}
+
+/* ==========================================================================
+   أساسيات
+   ========================================================================== */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--wa-bg);
+  color: var(--wa-text);
+  font-family: var(--font-sans);
+  overscroll-behavior-y: none;
+}
+
+/* خلفية الشات المنقّطة بتاعة واتساب */
+.wa-chat-pattern {
+  background-color: var(--wa-chat-bg);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in srgb, var(--wa-text-secondary) 22%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+}
+
+/* ذيل فقاعة الرسالة */
+.wa-tail-out::after,
+.wa-tail-in::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 13px;
+}
+
+.wa-tail-out::after {
+  inset-inline-end: -8px;
+  background-color: var(--wa-bubble-out);
+  clip-path: polygon(0 0, 0 100%, 100% 0);
+}
+
+.wa-tail-in::after {
+  inset-inline-start: -8px;
+  background-color: var(--wa-bubble-in);
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+}
+
+/* شكل الاسكرول بار */
+.wa-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.wa-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.wa-scroll::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--wa-text-secondary) 45%, transparent);
+  border-radius: 3px;
+}
+.wa-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--wa-text-secondary) 45%, transparent)
+    transparent;
+}
+
+/* نقط "بيكتب دلوقتي..." */
+@keyframes wa-typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.wa-typing-dot {
+  animation: wa-typing 1.2s infinite;
+}
+
+/* ظهور تدريجي للرسايل الجديدة */
+@keyframes wa-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.wa-fade-in {
+  animation: wa-fade-in 0.18s ease-out;
+}
+
+/* رنين المكالمة */
+@keyframes wa-pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  70% { transform: scale(1.25); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+.wa-pulse-ring {
+  animation: wa-pulse-ring 1.6s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+/* لودر بسيط */
+@keyframes wa-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wa-spin {
+  animation: wa-spin 0.8s linear infinite;
+}
+
+/* إخفاء الـ input بتاع الملفات */
+input[type="file"].wa-hidden-file {
+  display: none;
+}

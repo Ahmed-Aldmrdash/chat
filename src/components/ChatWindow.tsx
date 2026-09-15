@@ -155,11 +155,19 @@ export function ChatWindow({
   }, [messages]);
 
   /* ------------------------------ تعليم كمقروء ------------------------------ */
+  // onChanged بتتغيّر مع كل رندر للأب، فبنمسكها في ref عشان markRead تفضل ثابتة
+  const onChangedRef = useRef(onChanged);
+  useEffect(() => {
+    onChangedRef.current = onChanged;
+  });
+
+  const notifyChanged = useCallback(() => onChangedRef.current?.(), []);
+
   const markRead = useCallback(async () => {
     if (readOnly) return;
     const result = await markConversationRead(conversationId);
-    if (result.ok && result.data.updated > 0) onChanged?.();
-  }, [conversationId, onChanged, readOnly]);
+    if (result.ok && result.data.updated > 0) notifyChanged();
+  }, [conversationId, notifyChanged, readOnly]);
 
   useEffect(() => {
     if (loading) return;
@@ -181,7 +189,7 @@ export function ChatWindow({
         return [...cleaned, message];
       });
       if (message.sender_id !== myId) void markRead();
-      onChanged?.();
+      notifyChanged();
     },
     onUpdate: (message) => {
       setMessages((current) =>
@@ -264,7 +272,7 @@ export function ChatWindow({
           ? withoutTemp
           : [...withoutTemp, result.data];
       });
-      onChanged?.();
+      notifyChanged();
     } else {
       setMessages((current) => current.filter((message) => message.id !== tempId));
       setDraft(text);
@@ -311,7 +319,7 @@ export function ChatWindow({
           ? current
           : [...current, result.data],
       );
-      onChanged?.();
+      notifyChanged();
     } else {
       setError(result.error);
     }
@@ -357,7 +365,7 @@ export function ChatWindow({
           ? current
           : [...current, result.data],
       );
-      onChanged?.();
+      notifyChanged();
     } else {
       setError(result.error);
     }
@@ -381,7 +389,7 @@ export function ChatWindow({
     const result = await forwardMessage(forwardSource.id, conversationIds);
     if (!result.ok) setError(result.error);
     setForwardSource(null);
-    onChanged?.();
+    notifyChanged();
   };
 
   const handleExport = async () => {
@@ -430,7 +438,7 @@ export function ChatWindow({
       disappearing_duration_hours: hours,
     });
     if (!result.ok) setError(result.error);
-    else onChanged?.();
+    else notifyChanged();
     setMenuOpen(false);
   };
 

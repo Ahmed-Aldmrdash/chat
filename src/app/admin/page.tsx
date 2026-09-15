@@ -7,6 +7,9 @@ import { ADMIN_NAV } from "./nav";
 import type { Contact } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+/** ثابت على مستوى الملف عشان ميتعملش من جديد مع كل رندر */
+const ADMIN_TYPES = ["admin_contact"] as const;
 export const metadata = { title: "لوحة التحكم — الشات" };
 
 export default async function AdminPage() {
@@ -29,7 +32,7 @@ export default async function AdminPage() {
   // /admin بيعرض محادثات الأدمن مع الناس بس — محادثات contact_contact ليها
   // شاشة المتابعة في /admin/monitor
   const conversations = await loadConversationSummaries(user.id, {
-    types: ["admin_contact"],
+    types: [...ADMIN_TYPES],
   });
 
   return (
@@ -40,7 +43,7 @@ export default async function AdminPage() {
       myStatus={contact?.status_text}
       initialConversations={conversations}
       isAdmin
-      types={["admin_contact"]}
+      types={[...ADMIN_TYPES]}
       navLinks={ADMIN_NAV}
       emptyHint="لسه مفيش حد — اعمل حساب لأول شخص وهتلاقي الشات بينكم جاهز على طول"
       emptyAction={{ href: "/admin/users", label: "اعمل أول حساب" }}

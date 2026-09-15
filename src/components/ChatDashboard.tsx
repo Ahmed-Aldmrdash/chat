@@ -106,10 +106,21 @@ export function ChatDashboard({
   const push = usePushNotifications(myId);
 
   /* ------------------------------ تحديث القايمة ------------------------------ */
+  /**
+   * types بتيجي كمصفوفة جديدة مع كل رندر، ولو خلّينا refresh تعتمد عليها
+   * هتتغيّر هي كمان مع كل رندر — وكل الدوال اللي بتستخدمها تحتها (لحد
+   * markConversationRead في نافذة الشات) تتغيّر معاها وتتنفّذ من أول وجديد.
+   * فبنحطها في ref وبنخلي refresh ثابتة.
+   */
+  const typesRef = useRef(types);
+  useEffect(() => {
+    typesRef.current = types;
+  });
+
   const refresh = useCallback(async () => {
-    const result = await refreshConversations(types);
+    const result = await refreshConversations(typesRef.current);
     if (result.ok) setConversations(result.data);
-  }, [types]);
+  }, []);
 
   /**
    * مع كل رسالة بتوصل كنا بنعيد تحميل القايمة الجانبية كلها.
@@ -203,6 +214,12 @@ export function ChatDashboard({
   };
 
   const handleLogout = async () => {
+    // من غير كده الجهاز بيفضل مشترك في إشعارات الحساب ده بعد الخروج
+    try {
+      await push.unsubscribe();
+    } catch {
+      // مش مشكلة لو فشل — الخروج أهم
+    }
     await signOut();
     router.replace("/login");
     router.refresh();

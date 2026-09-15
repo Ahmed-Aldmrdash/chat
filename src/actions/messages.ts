@@ -3,6 +3,7 @@
 import { after } from "next/server";
 
 import { getCurrentUser, getSupabaseServer } from "@/lib/supabase-server";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { loadConversationSummaries } from "@/lib/queries";
 import { notifyConversation } from "@/lib/push";
 import type {
@@ -110,6 +111,7 @@ export async function editMessage(
     .update({ content: text, edited_at: new Date().toISOString() })
     .eq("id", messageId)
     .eq("content_type", "text")
+    .eq("is_deleted", false)
     .select()
     .single();
 
@@ -117,15 +119,32 @@ export async function editMessage(
   return { ok: true, data: data as Message };
 }
 
-/** حذف "ناعم": بنسيب الصف بس نعلّمه محذوف عشان الطرف التاني يشوف "اتمسحت" */
+/**
+ * حذف "ناعم": بنسيب الصف بس نعلّمه محذوف عشان الطرف التاني يشوف "اتمسحت".
+ * لو الرسالة كان فيها صورة أو صوت بنمسح الملف نفسه من التخزين — من غير كده
+ * الملفات بتفضل متخزّنة للأبد من غير ما حد يقدر يوصلها.
+ */
 export async function deleteMessage(messageId: string): Promise<ActionResult> {
   const supabase = await getSupabaseServer();
-  const { error } = await supabase
+
+  // الـ RLS هي اللي بتتأكد إن دي رسالته: لو مش بتاعته مفيش صف هيترجع
+  const { data, error } = await supabase
     .from("messages")
     .update({ is_deleted: true })
-    .eq("id", messageId);
+    .eq("id", messageId)
+    .select("media_path")
+    .maybeSingle();
 
   if (error) return { ok: false, error: error.message };
+  if (!data) return { ok: false, error: "مش مسموح لك تمسح الرسالة دي" };
+
+  const mediaPath = data.media_path as string | null;
+  if (mediaPath) {
+    after(async () => {
+      await getSupabaseAdmin().storage.from("chat-media").remove([mediaPath]);
+    });
+  }
+
   return { ok: true };
 }
 
@@ -318,11 +337,14 @@ export async function searchMessages(
   const term = query.trim();
   if (term.length < 2) return { ok: true, data: [] };
 
+  // % و _ لهم معنى خاص في ilike — لازم نهرّبهم عشان البحث يلاقي النص زي ما هو
+  const escaped = term.replace(/[\\%_]/g, (match) => `\\${match}`);
+
   const supabase = await getSupabaseServer();
   const { data, error } = await supabase
     .from("messages")
     .select("*")
-    .ilike("content", `%${term}%`)
+    .ilike("content", `%${escaped}%`)
     .eq("is_deleted", false)
     .order("created_at", { ascending: false })
     .limit(limit);

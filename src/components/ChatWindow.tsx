@@ -478,7 +478,7 @@ export function ChatWindow({
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col bg-wa-chat-bg">
       {/* ------------------------------ الهيدر ------------------------------ */}
-      <header className="z-10 flex items-center gap-3 border-b border-wa-border bg-wa-panel-header px-3 py-2">
+      <header className="z-10 flex items-center gap-3 border-b border-wa-border/60 bg-wa-panel-header px-3 py-2.5">
         {onBack && (
           <button
             type="button"
@@ -499,7 +499,7 @@ export function ChatWindow({
         />
 
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-medium text-wa-text">{otherNames}</h2>
+          <h2 className="truncate text-[15.5px] font-semibold text-wa-text">{otherNames}</h2>
           <p
             className={cn(
               "truncate text-xs",
@@ -636,7 +636,7 @@ export function ChatWindow({
             </p>
           </div>
         ) : (
-          <div className="mx-auto flex max-w-3xl flex-col gap-2">
+          <div className="mx-auto flex max-w-3xl flex-col">
             {visibleMessages.map((message, index) => {
               const previous = visibleMessages[index - 1];
               const showDay =
@@ -644,11 +644,23 @@ export function ChatWindow({
                 new Date(previous.created_at).toDateString() !==
                   new Date(message.created_at).toDateString();
 
+              /**
+               * رسالتين ورا بعض من نفس الشخص في أقل من 5 دقايق بيتلزقوا
+               * في بعض والتانية مبتاخدش ذيل — زي أي تطبيق شات.
+               */
+              const grouped =
+                !showDay &&
+                !!previous &&
+                previous.sender_id === message.sender_id &&
+                new Date(message.created_at).getTime() -
+                  new Date(previous.created_at).getTime() <
+                  5 * 60_000;
+
               return (
-                <div key={message.id} className="flex flex-col gap-2">
+                <div key={message.id} className="flex flex-col">
                   {showDay && (
-                    <div className="my-2 flex justify-center">
-                      <span className="rounded-lg bg-wa-panel px-3 py-1 text-[12px] text-wa-secondary shadow">
+                    <div className="my-3 flex justify-center">
+                      <span className="rounded-lg bg-wa-panel px-3 py-1 text-[12px] font-medium text-wa-secondary shadow-sm">
                         {formatDayLabel(message.created_at)}
                       </span>
                     </div>
@@ -659,6 +671,7 @@ export function ChatWindow({
                     outgoing={message.sender_id === myId}
                     senderName={nameById.get(message.sender_id)}
                     showSender={others.length > 1 || readOnly}
+                    grouped={grouped}
                     replyTo={
                       message.reply_to_id
                         ? (messagesById.get(message.reply_to_id) ?? null)
@@ -690,8 +703,8 @@ export function ChatWindow({
             })}
 
             {typing.typingUsers.length > 0 && (
-              <div className="flex justify-start">
-                <div className="flex items-center gap-1 rounded-lg bg-wa-bubble-in px-3 py-2 shadow">
+              <div className="mt-2.5 flex justify-start">
+                <div className="flex items-center gap-1 rounded-xl bg-wa-bubble-in px-3.5 py-2.5 shadow-sm">
                   {[0, 1, 2].map((index) => (
                     <span
                       key={index}
@@ -840,7 +853,7 @@ export function ChatWindow({
           </button>
         </div>
       ) : (
-        <div className="flex items-end gap-2 border-t border-wa-border bg-wa-panel-header px-3 py-2">
+        <div className="flex items-end gap-1.5 border-t border-wa-border/60 bg-wa-panel-header px-2.5 py-2.5">
           <input
             ref={fileInputRef}
             type="file"
@@ -878,14 +891,14 @@ export function ChatWindow({
               }
             }}
             placeholder="اكتب رسالة"
-            className="wa-scroll max-h-32 flex-1 resize-none rounded-lg bg-wa-input px-4 py-2.5 text-[15px] outline-none placeholder:text-wa-secondary"
+            className="wa-scroll max-h-32 flex-1 resize-none rounded-2xl bg-wa-input px-4 py-2.5 text-[15px] leading-relaxed outline-none placeholder:text-wa-secondary"
           />
 
           {draft.trim() ? (
             <button
               type="button"
               onClick={handleSend}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-wa-primary text-white transition hover:brightness-110"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-wa-primary text-white shadow-sm transition hover:brightness-110 active:scale-95"
               aria-label="إرسال"
             >
               <SendIcon width={18} height={18} />
@@ -894,7 +907,7 @@ export function ChatWindow({
             <button
               type="button"
               onClick={() => void recorder.start()}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-wa-primary text-white transition hover:brightness-110"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-wa-primary text-white shadow-sm transition hover:brightness-110 active:scale-95"
               aria-label="تسجيل رسالة صوتية"
             >
               <MicIcon width={18} height={18} />

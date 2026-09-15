@@ -108,7 +108,7 @@ export function SecuritySettings({
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {/* ---------------- 2FA ---------------- */}
-      <section className="rounded-xl border border-wa-border bg-wa-panel p-5">
+      <section className="rounded-2xl border border-wa-border bg-wa-panel p-5">
         <h2 className="mb-1 flex items-center gap-2 font-semibold">
           <ShieldIcon width={18} height={18} /> المصادقة الثنائية (2FA)
         </h2>
@@ -202,7 +202,7 @@ export function SecuritySettings({
 
       {/* ---------------- الإشعارات + الحالة ---------------- */}
       <div className="flex flex-col gap-6">
-        <section className="rounded-xl border border-wa-border bg-wa-panel p-5">
+        <section className="rounded-2xl border border-wa-border bg-wa-panel p-5">
           <h2 className="mb-1 flex items-center gap-2 font-semibold">
             <BellIcon width={18} height={18} /> إشعارات الويب
           </h2>
@@ -241,7 +241,7 @@ export function SecuritySettings({
           )}
         </section>
 
-        <section className="rounded-xl border border-wa-border bg-wa-panel p-5">
+        <section className="rounded-2xl border border-wa-border bg-wa-panel p-5">
           <h2 className="mb-1 font-semibold">الحالة النصية</h2>
           <p className="mb-4 text-xs text-wa-secondary">
             بتظهر تحت اسمك عند باقي الناس

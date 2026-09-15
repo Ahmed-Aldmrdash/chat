@@ -41,7 +41,7 @@ export function BroadcastForm({ contacts }: { contacts: Contact[] }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <section className="rounded-xl border border-wa-border bg-wa-panel p-5">
+      <section className="rounded-2xl border border-wa-border bg-wa-panel p-5">
         <h2 className="mb-4 flex items-center gap-2 font-semibold">
           <BroadcastIcon width={18} height={18} /> نص الرسالة
         </h2>
@@ -68,7 +68,7 @@ export function BroadcastForm({ contacts }: { contacts: Contact[] }) {
         </button>
       </section>
 
-      <section className="h-fit overflow-hidden rounded-xl border border-wa-border bg-wa-panel">
+      <section className="h-fit overflow-hidden rounded-2xl border border-wa-border bg-wa-panel">
         <div className="flex items-center justify-between border-b border-wa-border px-4 py-3">
           <h2 className="text-sm font-semibold">المستقبلين</h2>
           <button

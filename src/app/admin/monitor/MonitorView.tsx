@@ -24,7 +24,7 @@ export function MonitorView({
 
   if (conversations.length === 0) {
     return (
-      <div className="rounded-xl border border-wa-border bg-wa-panel p-10 text-center">
+      <div className="rounded-2xl border border-wa-border bg-wa-panel p-10 text-center">
         <EyeIcon width={36} height={36} className="mx-auto mb-3 text-wa-secondary" />
         <p className="text-wa-secondary">
           مفيش محادثات بين الناس لسه — افتح إذن من صفحة الصلاحيات الأول
@@ -35,7 +35,7 @@ export function MonitorView({
 
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-      <aside className="h-fit overflow-hidden rounded-xl border border-wa-border bg-wa-panel">
+      <aside className="h-fit overflow-hidden rounded-2xl border border-wa-border bg-wa-panel">
         <h2 className="border-b border-wa-border px-4 py-3 text-sm font-semibold">
           المحادثات ({conversations.length})
         </h2>

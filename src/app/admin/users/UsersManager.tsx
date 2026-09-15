@@ -67,7 +67,7 @@ export function UsersManager({
   return (
     <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
       {/* ---------------- فورم الإنشاء ---------------- */}
-      <section className="h-fit rounded-xl border border-wa-border bg-wa-panel p-5">
+      <section className="h-fit rounded-2xl border border-wa-border bg-wa-panel p-5">
         <h2 className="mb-4 flex items-center gap-2 font-semibold">
           <PlusIcon width={18} height={18} /> حساب جديد
         </h2>
@@ -141,7 +141,7 @@ export function UsersManager({
       </section>
 
       {/* ---------------- قايمة المستخدمين ---------------- */}
-      <section className="rounded-xl border border-wa-border bg-wa-panel">
+      <section className="rounded-2xl border border-wa-border bg-wa-panel">
         <h2 className="border-b border-wa-border px-5 py-3 font-semibold">
           كل المستخدمين ({others.length})
         </h2>

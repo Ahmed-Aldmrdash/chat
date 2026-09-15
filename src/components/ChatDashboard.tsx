@@ -240,7 +240,7 @@ export function ChatDashboard({
         )}
       >
         {/* هيدر */}
-        <header className="flex items-center gap-2 bg-wa-panel-header px-3 py-2">
+        <header className="flex items-center gap-2 border-b border-wa-border/60 bg-wa-panel-header px-3 py-2.5">
           <Avatar name={myName} id={myId} url={myAvatar} size={40} />
           <button
             type="button"
@@ -248,7 +248,7 @@ export function ChatDashboard({
             className="min-w-0 flex-1 text-start"
             title="غيّر حالتك"
           >
-            <p className="truncate font-medium">{myName}</p>
+            <p className="truncate text-[15px] font-semibold">{myName}</p>
             <p className="truncate text-xs text-wa-secondary">
               {totalUnread > 0 ? (
                 <span className="text-wa-primary">{totalUnread} رسالة جديدة</span>
@@ -363,10 +363,10 @@ export function ChatDashboard({
               type="button"
               onClick={() => setTab(item.key)}
               className={cn(
-                "rounded-full px-3 py-1 text-xs transition",
+                "rounded-full px-3 py-1 text-[12px] font-medium transition",
                 tab === item.key
-                  ? "bg-wa-primary/20 text-wa-primary"
-                  : "bg-wa-hover text-wa-secondary hover:bg-wa-active",
+                  ? "bg-wa-primary/15 text-wa-primary"
+                  : "text-wa-secondary hover:bg-wa-hover",
               )}
             >
               {item.label}
@@ -436,7 +436,7 @@ export function ChatDashboard({
                   type="button"
                   onClick={() => openConversation(summary.conversation.id)}
                   className={cn(
-                    "flex w-full items-center gap-3 px-3 py-3 text-start transition",
+                    "relative flex w-full items-center gap-3 px-3 py-2.5 text-start transition",
                     isActive ? "bg-wa-active" : "hover:bg-wa-hover",
                   )}
                 >
@@ -447,9 +447,9 @@ export function ChatDashboard({
                     online={online}
                   />
 
-                  <div className="min-w-0 flex-1 border-b border-wa-border pb-3 -mb-3">
+                  <div className="min-w-0 flex-1 border-b border-wa-border/70 py-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="truncate font-medium">{name}</span>
+                      <span className="truncate text-[15px] font-medium text-wa-text">{name}</span>
                       {summary.conversation.is_pinned && (
                         <PinIcon width={13} height={13} className="shrink-0 text-wa-secondary" />
                       )}
@@ -462,7 +462,7 @@ export function ChatDashboard({
                       {other?.is_blocked && (
                         <BlockIcon width={13} height={13} className="shrink-0 text-wa-danger" />
                       )}
-                      <span className="ms-auto shrink-0 text-[11px] text-wa-secondary">
+                      <span className="ms-auto shrink-0 text-[11.5px] tabular-nums text-wa-secondary">
                         {summary.lastMessage
                           ? formatConversationTime(summary.lastMessage.created_at)
                           : ""}
@@ -470,7 +470,7 @@ export function ChatDashboard({
                     </div>
 
                     <div className="mt-0.5 flex items-center gap-2">
-                      <span className="flex min-w-0 flex-1 items-center gap-1 truncate text-sm text-wa-secondary">
+                      <span className="flex min-w-0 flex-1 items-center gap-1 truncate text-[13.5px] text-wa-secondary">
                         {summary.lastMessage?.sender_id === myId && (
                           <DoubleCheckIcon
                             width={14}
@@ -492,7 +492,7 @@ export function ChatDashboard({
                       </span>
 
                       {summary.unreadCount > 0 && (
-                        <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-wa-primary px-1.5 text-[11px] font-medium text-white">
+                        <span className="flex h-[19px] min-w-[19px] shrink-0 items-center justify-center rounded-full bg-wa-primary px-1.5 text-[11px] font-semibold tabular-nums text-white">
                           {summary.unreadCount}
                         </span>
                       )}
@@ -503,7 +503,7 @@ export function ChatDashboard({
                         {summary.tags.map((tag) => (
                           <span
                             key={tag.id}
-                            className="rounded-full px-1.5 py-0.5 text-[10px] text-white"
+                            className="rounded px-1.5 py-[1px] text-[10px] font-medium text-white"
                             style={{ backgroundColor: tag.color }}
                           >
                             {tag.tag}

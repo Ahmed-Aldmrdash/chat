@@ -61,7 +61,7 @@ export function PermissionsManager({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-      <section className="h-fit rounded-xl border border-wa-border bg-wa-panel p-5">
+      <section className="h-fit rounded-2xl border border-wa-border bg-wa-panel p-5">
         <h2 className="mb-4 flex items-center gap-2 font-semibold">
           <ShieldIcon width={18} height={18} /> إذن محادثة جديد
         </h2>
@@ -125,7 +125,7 @@ export function PermissionsManager({
         </p>
       </section>
 
-      <section className="rounded-xl border border-wa-border bg-wa-panel">
+      <section className="rounded-2xl border border-wa-border bg-wa-panel">
         <h2 className="border-b border-wa-border px-5 py-3 font-semibold">
           الأذونات ({permissions.length})
         </h2>

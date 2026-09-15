@@ -1,5 +1,17 @@
 import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
+
+/**
+ * الخط بيتحمّل مع التطبيق نفسه (self-hosted) مش من سيرفر خارجي،
+ * فمفيش طلب زيادة ولا اهتزاز في النص وهو بيتحمّل.
+ */
+const appFont = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-app",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "الشات",
@@ -46,7 +58,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className={appFont.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

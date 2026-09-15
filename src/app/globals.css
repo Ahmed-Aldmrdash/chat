@@ -71,8 +71,8 @@
   --color-wa-danger: var(--wa-danger);
   --color-wa-input: var(--wa-input);
 
-  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
-    "Noto Kufi Arabic", sans-serif;
+  --font-sans: var(--font-app), "Segoe UI", system-ui, -apple-system, Arial,
+    sans-serif;
 }
 
 /* ==========================================================================
@@ -99,32 +99,36 @@ body {
   background-color: var(--wa-chat-bg);
   background-image: radial-gradient(
     circle at 1px 1px,
-    color-mix(in srgb, var(--wa-text-secondary) 22%, transparent) 1px,
+    color-mix(in srgb, var(--wa-text-secondary) 16%, transparent) 1px,
     transparent 0
   );
-  background-size: 22px 22px;
+  background-size: 26px 26px;
 }
 
-/* ذيل فقاعة الرسالة */
+/* ذيل فقاعة الرسالة
+   التطبيق كله RTL، يعني inline-end = الشمال و inline-start = اليمين.
+   الضلع المستقيم بتاع المثلث لازم يبقى ناحية الفقاعة، والرأس بره. */
 .wa-tail-out::after,
 .wa-tail-in::after {
   content: "";
   position: absolute;
   top: 0;
-  width: 8px;
-  height: 13px;
+  width: 9px;
+  height: 15px;
 }
 
+/* رسايلي: الفقاعة على الشمال، فالذيل على شمالها */
 .wa-tail-out::after {
-  inset-inline-end: -8px;
+  inset-inline-end: -9px;
   background-color: var(--wa-bubble-out);
-  clip-path: polygon(0 0, 0 100%, 100% 0);
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
 }
 
+/* رسايل الطرف التاني: الفقاعة على اليمين، فالذيل على يمينها */
 .wa-tail-in::after {
-  inset-inline-start: -8px;
+  inset-inline-start: -9px;
   background-color: var(--wa-bubble-in);
-  clip-path: polygon(100% 0, 100% 100%, 0 0);
+  clip-path: polygon(0 0, 0 100%, 100% 0);
 }
 
 /* شكل الاسكرول بار */

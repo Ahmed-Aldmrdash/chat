@@ -12,9 +12,13 @@ export default async function AdminAnalyticsPage() {
   if (!result.ok) {
     return (
       <AdminShell title="الإحصائيات">
-        <p className="rounded-xl border border-wa-border bg-wa-panel p-6 text-center text-wa-danger">
-          {result.error}
-        </p>
+        <div className="mx-auto max-w-md rounded-2xl border border-wa-border bg-wa-panel p-8 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-wa-danger/10 text-2xl">
+            ⚠️
+          </div>
+          <h2 className="mb-1.5 text-base font-semibold">مش قادر يجيب الإحصائيات</h2>
+          <p className="text-sm text-wa-secondary">{result.error}</p>
+        </div>
       </AdminShell>
     );
   }
@@ -45,7 +49,7 @@ export default async function AdminAnalyticsPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* ---------- أكتر الأشخاص تفاعلًا ---------- */}
-        <section className="rounded-xl border border-wa-border bg-wa-panel p-5">
+        <section className="rounded-2xl border border-wa-border bg-wa-panel p-5">
           <h2 className="font-semibold">أكتر الأشخاص تفاعلًا</h2>
           <p className="mb-4 text-xs text-wa-secondary">عدد الرسايل المرسلة لكل شخص</p>
 
@@ -80,7 +84,7 @@ export default async function AdminAnalyticsPage() {
         </section>
 
         {/* ---------- النشاط بالساعة ---------- */}
-        <section className="rounded-xl border border-wa-border bg-wa-panel p-5">
+        <section className="rounded-2xl border border-wa-border bg-wa-panel p-5">
           <h2 className="font-semibold">النشاط على مدار اليوم</h2>
           <p className="mb-4 text-xs text-wa-secondary">
             {hasHourData
@@ -134,7 +138,7 @@ export default async function AdminAnalyticsPage() {
 
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-wa-border bg-wa-panel p-4">
+    <div className="rounded-2xl border border-wa-border bg-wa-panel p-4">
       <p className="text-3xl font-semibold tabular-nums text-wa-primary">
         {value.toLocaleString("ar-EG")}
       </p>

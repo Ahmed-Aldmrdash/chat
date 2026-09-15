@@ -180,10 +180,24 @@ if (reachable) {
     } else {
       const user = data.users.find((u) => u.email?.toLowerCase() === adminEmail);
       if (!user) {
-        fail(
-          `مفيش حساب بالإيميل ${adminEmail}`,
-          "Authentication → Users → Add user → Create new user (وفعّل Auto Confirm User)",
-        );
+        const others = data.users.map((u) => u.email).filter(Boolean);
+        if (others.length === 0) {
+          fail(
+            `مفيش أي حساب لسه`,
+            "Authentication → Users → Add user → Create new user (وفعّل Auto Confirm User)",
+          );
+        } else {
+          fail(
+            `مفيش حساب بالإيميل ${adminEmail}`,
+            `الموجود حاليًا: ${others.slice(0, 5).join("، ")}`,
+          );
+          console.log(
+            `  ${c.dim("أسهل حل: امسح الحساب ده من Authentication → Users،")}\n` +
+            `  ${c.dim("واعمل واحد جديد بإيميل")} ${c.bold(adminEmail)} ${c.dim("مع تفعيل Auto Confirm User.")}\n` +
+            `  ${c.dim("أو لو عايز تستخدم الإيميل التاني، غيّره في .env.local")}\n` +
+            `  ${c.dim("وشغّل npm run setup تاني والزق الـ SQL من الأول.")}`,
+          );
+        }
       } else if (!user.email_confirmed_at && !user.confirmed_at) {
         fail(
           "حساب الأدمن موجود بس الإيميل مش مؤكّد",

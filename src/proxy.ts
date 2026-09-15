@@ -31,13 +31,33 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // نفس فكرة getCurrentUser: تحقق محلي من التوكن بدل رحلة شبكة في كل طلب
+  let userId: string | null = null;
+  let userEmail: string | null = null;
 
+  try {
+    const { data, error } = await supabase.auth.getClaims();
+    const claims = data?.claims as { sub?: string; email?: string } | undefined;
+    if (!error && claims?.sub && claims.email) {
+      userId = claims.sub;
+      userEmail = claims.email;
+    }
+  } catch {
+    // هنرجع للطريقة الأبطأ تحت
+  }
+
+  if (!userId) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    userId = user?.id ?? null;
+    userEmail = user?.email ?? null;
+  }
+
+  const user = userId ? { id: userId, email: userEmail } : null;
   const { pathname } = request.nextUrl;
   const adminEmail = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
-  const isAdmin = !!user?.email && user.email.trim().toLowerCase() === adminEmail;
+  const isAdmin = !!userEmail && userEmail.trim().toLowerCase() === adminEmail;
 
   if (!user && (pathname.startsWith("/admin") || pathname.startsWith("/chat"))) {
     const url = request.nextUrl.clone();

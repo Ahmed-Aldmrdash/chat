@@ -40,12 +40,14 @@ export async function loadConversationSummaries(
       .from("conversation_participants")
       .select("conversation_id, contact_id, contacts(*)")
       .in("conversation_id", ids),
+    // القايمة الجانبية محتاجة آخر رسالة وعدد الغير مقروء بس — مش الرسايل كلها.
+    // كنا بنجيب 1000 صف كامل في كل تحديث، وده كان أتقل حاجة في الصفحة.
     supabase
       .from("messages")
-      .select("*")
+      .select("id, conversation_id, sender_id, content, content_type, is_read, is_deleted, created_at")
       .in("conversation_id", ids)
       .order("created_at", { ascending: false })
-      .limit(1000),
+      .limit(400),
   ]);
 
   type ParticipantRow = {
@@ -55,7 +57,8 @@ export async function loadConversationSummaries(
   };
 
   const participants = (participantsRes.data ?? []) as ParticipantRow[];
-  const messages = (messagesRes.data ?? []) as Message[];
+  // بنجيب الأعمدة اللي القايمة بتعرضها بس، فالنوع أضيق من Message الكامل
+  const messages = (messagesRes.data ?? []) as unknown as Message[];
 
   // التاجات بتاعة كل الأطراف اللي ظهرت
   const contactIds = Array.from(new Set(participants.map((p) => p.contact_id)));

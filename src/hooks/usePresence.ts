@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import { touchPresence } from "@/actions/profile";
+import { getSupabaseBrowser } from "@/lib/supabase-browser";
 
 const INTERVAL_MS = 30_000;
 
 /**
  * بيحدّث last_seen بتاع المستخدم كل 30 ثانية طول ما التاب مفتوح،
- * وبيوقف لما التاب يبقى في الخلفية عشان مايستهلكش من غير لزوم.
+ * وبيوقف لما التاب يبقى في الخلفية.
+ *
+ * التحديث بيروح للداتابيز مباشرة من المتصفح (سياسة contacts_update_own
+ * بتسمح لكل واحد يعدّل صفه هو بس) — كده مش بنشغّل server action كل نص
+ * دقيقة على كل تاب مفتوح.
  */
 export function usePresence(userId: string | null) {
   useEffect(() => {
@@ -17,7 +21,10 @@ export function usePresence(userId: string | null) {
 
     const ping = () => {
       if (cancelled || document.visibilityState === "hidden") return;
-      void touchPresence();
+      void getSupabaseBrowser()
+        .from("contacts")
+        .update({ last_seen: new Date().toISOString() })
+        .eq("id", userId);
     };
 
     ping();

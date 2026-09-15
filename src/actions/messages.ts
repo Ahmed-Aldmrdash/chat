@@ -1,5 +1,7 @@
 "use server";
 
+import { after } from "next/server";
+
 import { getCurrentUser, getSupabaseServer } from "@/lib/supabase-server";
 import { loadConversationSummaries } from "@/lib/queries";
 import { notifyConversation } from "@/lib/push";
@@ -71,18 +73,14 @@ export async function sendMessage(
     return { ok: false, error: error.message };
   }
 
-  const { data: me } = await supabase
-    .from("contacts")
-    .select("display_name")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  await notifyConversation({
-    conversationId: input.conversationId,
-    senderId: user.id,
-    senderName: me?.display_name ?? "رسالة جديدة",
-    preview: previewOf(content, contentType),
-  });
+  // الإشعارات بتتبعت بعد ما الرد يوصل للمستخدم — مش قبله
+  after(() =>
+    notifyConversation({
+      conversationId: input.conversationId,
+      senderId: user.id,
+      preview: previewOf(content, contentType),
+    }),
+  );
 
   return { ok: true, data: data as Message };
 }
@@ -208,20 +206,15 @@ export async function forwardMessage(
     return { ok: false, error: error.message };
   }
 
-  const { data: me } = await supabase
-    .from("contacts")
-    .select("display_name")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  await Promise.all(
-    conversationIds.map((conversationId) =>
-      notifyConversation({
-        conversationId,
-        senderId: user.id,
-        senderName: me?.display_name ?? "رسالة جديدة",
-        preview: previewOf(original.content, original.content_type),
-      }),
+  after(() =>
+    Promise.all(
+      conversationIds.map((conversationId) =>
+        notifyConversation({
+          conversationId,
+          senderId: user.id,
+          preview: previewOf(original.content, original.content_type),
+        }),
+      ),
     ),
   );
 

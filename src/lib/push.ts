@@ -81,37 +81,48 @@ export async function sendPushToUsers(
 /**
  * بيبعت إشعار لباقي أطراف المحادثة — بيحترم إعداد الكتم (Mute)
  * وبيتجاهل الراسل نفسه.
+ *
+ * الدالة دي بتتنادى جوه after() بعد ما الرد يروح للمستخدم، فكل الاستعلامات
+ * اللي جواها مش بتأخّر ظهور الرسالة. عشان كده بتجيب اسم الراسل بنفسها
+ * بدل ما اللي بينادي عليها يعمل استعلام زيادة في المسار السريع.
  */
 export async function notifyConversation(params: {
   conversationId: string;
   senderId: string;
-  senderName: string;
+  preview: string;
+}): Promise<void> {
+  try {
+    await deliverNotification(params);
+  } catch {
+    // الرسالة نفسها اتبعتت خلاص — فشل الإشعار مايستاهلش نكسر حاجة
+  }
+}
+
+async function deliverNotification(params: {
+  conversationId: string;
+  senderId: string;
   preview: string;
 }): Promise<void> {
   const admin = getSupabaseAdmin();
 
-  const { data: conversation } = await admin
-    .from("conversations")
-    .select("id, is_muted")
-    .eq("id", params.conversationId)
-    .single();
+  // التلاتة مع بعض بدل واحدة ورا التانية
+  const [conversationRes, participantsRes, senderRes] = await Promise.all([
+    admin.from("conversations").select("id, is_muted").eq("id", params.conversationId).maybeSingle(),
+    admin.from("conversation_participants").select("contact_id").eq("conversation_id", params.conversationId),
+    admin.from("contacts").select("display_name").eq("id", params.senderId).maybeSingle(),
+  ]);
 
   // المحادثة مكتومة → مفيش إشعارات خالص
-  if (!conversation || conversation.is_muted) return;
+  if (!conversationRes.data || conversationRes.data.is_muted) return;
 
-  const { data: participants } = await admin
-    .from("conversation_participants")
-    .select("contact_id")
-    .eq("conversation_id", params.conversationId);
-
-  const recipients = (participants ?? [])
+  const recipients = (participantsRes.data ?? [])
     .map((p) => p.contact_id as string)
     .filter((id) => id !== params.senderId);
 
   if (!recipients.length) return;
 
   await sendPushToUsers(recipients, {
-    title: params.senderName,
+    title: senderRes.data?.display_name ?? "رسالة جديدة",
     body: params.preview,
     url: `/?c=${params.conversationId}`,
     conversationId: params.conversationId,

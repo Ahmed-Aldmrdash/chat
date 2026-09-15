@@ -54,22 +54,11 @@ export async function GET(request: NextRequest) {
     );
 
   // إشعارات للطرف التاني (بتحترم الكتم جوه notifyConversation)
-  const senderIds = Array.from(new Set(due.map((item) => item.sender_id as string)));
-  const { data: senders } = await admin
-    .from("contacts")
-    .select("id, display_name")
-    .in("id", senderIds);
-
-  const names = new Map(
-    (senders ?? []).map((sender) => [sender.id as string, sender.display_name as string]),
-  );
-
   await Promise.all(
     due.map((item) =>
       notifyConversation({
         conversationId: item.conversation_id,
         senderId: item.sender_id,
-        senderName: names.get(item.sender_id) ?? "رسالة مجدولة",
         preview: String(item.content).slice(0, 120),
       }),
     ),

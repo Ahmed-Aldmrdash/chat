@@ -9,6 +9,7 @@ import { VoicePlayer } from "./VoicePlayer";
 import { LinkPreviewCard } from "./LinkPreviewCard";
 import {
   CheckIcon,
+  ClockIcon,
   DoubleCheckIcon,
   EditIcon,
   EmojiIcon,
@@ -219,7 +220,9 @@ export function MessageBubble({
           <span>{formatTime(message.created_at)}</span>
           {outgoing &&
             !message.is_deleted &&
-            (message.is_read ? (
+            (message.pending ? (
+              <ClockIcon width={12} height={12} aria-label="بيتبعت" />
+            ) : message.is_read ? (
               <DoubleCheckIcon className="text-wa-tick" aria-label="اتقرت" />
             ) : (
               <CheckIcon aria-label="اتبعتت" />
@@ -244,7 +247,7 @@ export function MessageBubble({
         )}
 
         {/* زرار القايمة */}
-        {!readOnly && !message.is_deleted && (
+        {!readOnly && !message.is_deleted && !message.pending && (
           <button
             type="button"
             onClick={() => {

@@ -83,7 +83,6 @@ export function ChatWindow({
   const [reactions, setReactions] = useState<Record<string, MessageReaction[]>>({});
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState("");
-  const [sending, setSending] = useState(false);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [editing, setEditing] = useState<Message | null>(null);
   const [forwardSource, setForwardSource] = useState<Message | null>(null);
@@ -170,11 +169,17 @@ export function ChatWindow({
   /* ------------------------------ الريل تايم ------------------------------ */
   useRealtimeMessages(conversationId, {
     onInsert: (message) => {
-      setMessages((current) =>
-        current.some((existing) => existing.id === message.id)
-          ? current
-          : [...current, message],
-      );
+      setMessages((current) => {
+        if (current.some((existing) => existing.id === message.id)) return current;
+        // رسالتي رجعت من الريل تايم قبل رد الأكشن → نشيل النسخة المؤقتة
+        const cleaned =
+          message.sender_id === myId
+            ? current.filter(
+                (existing) => !(existing.pending && existing.content === message.content),
+              )
+            : current;
+        return [...cleaned, message];
+      });
       if (message.sender_id !== myId) void markRead();
       onChanged?.();
     },
@@ -206,40 +211,65 @@ export function ChatWindow({
   /* ------------------------------ الإرسال ------------------------------ */
   const handleSend = async () => {
     const text = draft.trim();
-    if (!text || sending) return;
+    if (!text) return;
 
-    setSending(true);
     setError(null);
     typing.notifyStopTyping();
 
     if (editing) {
-      const result = await editMessage(editing.id, text);
-      if (!result.ok) setError(result.error);
       setEditing(null);
       setDraft("");
-      setSending(false);
+      const result = await editMessage(editing.id, text);
+      if (!result.ok) setError(result.error);
       return;
     }
 
-    const result = await sendMessage({
-      conversationId,
+    /**
+     * بنعرض الرسالة على طول بعلامة ساعة، من غير ما نستنى السيرفر.
+     * لما الرد يوصل بنستبدلها بالرسالة الحقيقية، ولو فشل بنشيلها
+     * ونرجّع النص في صندوق الكتابة عشان ميضيعش.
+     */
+    const tempId = `pending-${crypto.randomUUID()}`;
+    const replyToId = replyTo?.id ?? null;
+
+    const optimistic: Message = {
+      id: tempId,
+      conversation_id: conversationId,
+      sender_id: myId,
       content: text,
-      replyToId: replyTo?.id ?? null,
-    });
+      content_type: "text",
+      media_path: null,
+      reply_to_id: replyToId,
+      is_forwarded: false,
+      is_broadcast: false,
+      is_read: false,
+      is_deleted: false,
+      edited_at: null,
+      expires_at: null,
+      created_at: new Date().toISOString(),
+      pending: true,
+    };
+
+    setMessages((current) => [...current, optimistic]);
+    setDraft("");
+    setReplyTo(null);
+
+    const result = await sendMessage({ conversationId, content: text, replyToId });
 
     if (result.ok) {
-      setDraft("");
-      setReplyTo(null);
-      setMessages((current) =>
-        current.some((message) => message.id === result.data.id)
-          ? current
-          : [...current, result.data],
-      );
+      setMessages((current) => {
+        const withoutTemp = current.filter((message) => message.id !== tempId);
+        // ممكن الريل تايم يكون سبقنا وجابها بالفعل
+        return withoutTemp.some((message) => message.id === result.data.id)
+          ? withoutTemp
+          : [...withoutTemp, result.data];
+      });
       onChanged?.();
     } else {
+      setMessages((current) => current.filter((message) => message.id !== tempId));
+      setDraft(text);
       setError(result.error);
     }
-    setSending(false);
   };
 
   /* ------------------------------ رفع صورة ------------------------------ */
@@ -847,11 +877,10 @@ export function ChatWindow({
             <button
               type="button"
               onClick={handleSend}
-              disabled={sending}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-wa-primary text-white transition hover:brightness-110 disabled:opacity-50"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-wa-primary text-white transition hover:brightness-110"
               aria-label="إرسال"
             >
-              {sending ? <SpinnerIcon width={18} height={18} /> : <SendIcon width={18} height={18} />}
+              <SendIcon width={18} height={18} />
             </button>
           ) : (
             <button

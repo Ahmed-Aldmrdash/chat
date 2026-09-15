@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getCurrentUser, getSupabaseServer, isCurrentUserAdmin } from "@/lib/supabase-server";
 import { isValidUsername, normalizeUsername, usernameToEmail } from "@/lib/username";
@@ -411,20 +412,15 @@ export async function broadcastMessage(
 
   if (error) return { ok: false, error: error.message };
 
-  const { data: adminContact } = await admin
-    .from("contacts")
-    .select("display_name")
-    .eq("id", guard.adminId)
-    .maybeSingle();
-
-  await Promise.all(
-    conversationIds.map((conversationId) =>
-      notifyConversation({
-        conversationId,
-        senderId: guard.adminId,
-        senderName: adminContact?.display_name ?? "الأدمن",
-        preview: text.slice(0, 120),
-      }),
+  after(() =>
+    Promise.all(
+      conversationIds.map((conversationId) =>
+        notifyConversation({
+          conversationId,
+          senderId: guard.adminId,
+          preview: text.slice(0, 120),
+        }),
+      ),
     ),
   );
 

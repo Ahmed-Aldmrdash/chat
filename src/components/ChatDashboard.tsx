@@ -111,7 +111,27 @@ export function ChatDashboard({
     if (result.ok) setConversations(result.data);
   }, [types]);
 
-  useRealtimeConversationList(refresh);
+  /**
+   * مع كل رسالة بتوصل كنا بنعيد تحميل القايمة الجانبية كلها.
+   * في محادثة سريعة ده بيبقى عشرات الطلبات ورا بعض وبيبطّأ كل حاجة،
+   * فبنجمّعهم في طلب واحد كل نص ثانية.
+   */
+  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scheduleRefresh = useCallback(() => {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    refreshTimer.current = setTimeout(() => {
+      refreshTimer.current = null;
+      void refresh();
+    }, 500);
+  }, [refresh]);
+
+  useEffect(() => {
+    return () => {
+      if (refreshTimer.current) clearTimeout(refreshTimer.current);
+    };
+  }, []);
+
+  useRealtimeConversationList(scheduleRefresh);
 
   useEffect(() => {
     if (!menuFor) return;
@@ -571,7 +591,7 @@ export function ChatDashboard({
               amBlocked ? "حسابك متوقف عن الإرسال — تقدر تقرا بس" : null
             }
             onBack={() => setShowListOnMobile(true)}
-            onChanged={refresh}
+            onChanged={scheduleRefresh}
           />
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-wa-chat-bg px-6 text-center">

@@ -37,6 +37,8 @@ export interface Message {
   edited_at: string | null;
   expires_at: string | null;
   created_at: string;
+  /** علامة محلية في المتصفح بس (مش عمود في الداتابيز): الرسالة لسه بتتبعت */
+  pending?: boolean;
 }
 
 export interface MessageReaction {

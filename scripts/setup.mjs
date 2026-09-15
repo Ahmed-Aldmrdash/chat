@@ -60,15 +60,26 @@ async function generateVapid() {
   return { publicKey: base64url(new Uint8Array(raw)), privateKey: jwk.d };
 }
 
-/** بنتأكد إن الـ URL والمفتاح شغالين فعلًا — لو مفيش نت بنعدّي عادي */
+/**
+ * بنتأكد إن الـ URL والمفتاح شغالين — الفحص ده إرشادي بس ومبيوقفش الإعداد.
+ *
+ * ملاحظة مهمة: المفاتيح الجديدة (sb_publishable_…) مش JWT، فبنبعتها في هيدر
+ * apikey بس. لو بعتناها كـ Authorization: Bearer الـ PostgREST بيحاول يفكّها
+ * كـ JWT وبيرد 401 حتى لو المفتاح سليم.
+ */
 async function checkSupabase(url, anonKey) {
   try {
     const response = await fetch(`${url}/rest/v1/`, {
-      headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` },
+      headers: { apikey: anonKey },
       signal: AbortSignal.timeout(8000),
     });
-    if (response.status === 401 || response.status === 403) return "bad-key";
     if (response.ok || response.status === 404) return "ok";
+
+    if (response.status === 401 || response.status === 403) {
+      const body = await response.text().catch(() => "");
+      // بنعتبره غلط بس لو السيرفر قال كده بالنص
+      if (/invalid\s*api\s*key|no\s*api\s*key/i.test(body)) return "bad-key";
+    }
     return "unknown";
   } catch {
     return "offline";
@@ -146,13 +157,14 @@ console.log({
   ok: c.green("تمام ✓"),
   "bad-key": c.red("المفتاح مرفوض ✗"),
   offline: c.yellow("مش قادر أتحقق (مفيش نت؟)"),
-  unknown: c.yellow("رد غير متوقع"),
+  unknown: c.yellow("مش قادر أتأكد — كمّل عادي"),
 }[check]);
 
 if (check === "bad-key") {
-  console.log(c.red("\nالـ anon key غلط. شغّل npm run setup تاني بالمفتاح الصح.\n"));
-  rl.close();
-  process.exit(1);
+  console.log(c.yellow(
+    "\nالسيرفر قال إن المفتاح مش صح. الملفات اتكتبت برضه، فلو متأكد منه كمّل،\n" +
+    "ولو الاتصال فشل بعدين شغّل npm run setup تاني بمفتاح جديد.",
+  ));
 }
 
 console.log(`

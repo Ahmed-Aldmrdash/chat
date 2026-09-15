@@ -166,10 +166,23 @@ on conflict (id) do nothing;
 
 -- هل المستخدم الحالي هو الأدمن؟
 -- ⚠️ غيّر الإيميل ده لإيميل الأدمن الحقيقي (نفس قيمة ADMIN_EMAIL)
+--
+-- بنقرا الإيميل من جدول auth.users بالـ id مش من الـ JWT مباشرة:
+-- شكل الـ claims في التوكن بيختلف حسب نوع مفاتيح الـ API وإعدادات المشروع،
+-- لكن auth.uid() دايمًا موجود. الـ security definer بتخلّينا نقرا auth.users.
 create or replace function public.is_admin()
-returns boolean as $$
-  select coalesce(auth.jwt() ->> 'email', '') = 'your-admin-email@example.com';
-$$ language sql stable;
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from auth.users
+    where id = auth.uid()
+      and lower(email) = lower('your-admin-email@example.com')
+  );
+$$;
 
 -- هل المستخدم الحالي مشارك في المحادثة دي؟
 -- security definer عشان نتفادى الـ infinite recursion في سياسات الـ RLS

@@ -36,6 +36,7 @@ import {
   MoreIcon,
   MuteIcon,
   PinIcon,
+  PlusIcon,
   SearchIcon,
   SpinnerIcon,
   StarIcon,
@@ -56,6 +57,8 @@ interface ChatDashboardProps {
   amBlocked?: boolean;
   navLinks?: { href: string; label: string; icon: React.ReactNode }[];
   emptyHint?: string;
+  /** زرار بيظهر في نص الشاشة الفاضية — عشان الأدمن يعرف يبدأ منين */
+  emptyAction?: { href: string; label: string };
 }
 
 export function ChatDashboard({
@@ -70,6 +73,7 @@ export function ChatDashboard({
   amBlocked = false,
   navLinks = [],
   emptyHint,
+  emptyAction,
 }: ChatDashboardProps) {
   const router = useRouter();
 
@@ -570,11 +574,22 @@ export function ChatDashboard({
             onChanged={refresh}
           />
         ) : (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 bg-wa-chat-bg text-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-wa-chat-bg px-6 text-center">
             <div className="rounded-full bg-wa-panel p-6 shadow">
               <SearchIcon width={40} height={40} className="text-wa-secondary" />
             </div>
-            <p className="text-wa-secondary">{emptyHint ?? "اختار محادثة عشان تبدأ"}</p>
+            <p className="max-w-xs text-wa-secondary">
+              {emptyHint ?? "اختار محادثة عشان تبدأ"}
+            </p>
+            {emptyAction && (
+              <Link
+                href={emptyAction.href}
+                className="flex items-center gap-2 rounded-full bg-wa-primary px-5 py-2.5 text-sm font-medium text-white transition hover:brightness-110"
+              >
+                <PlusIcon width={16} height={16} />
+                {emptyAction.label}
+              </Link>
+            )}
           </div>
         )}
       </main>

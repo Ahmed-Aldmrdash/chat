@@ -42,7 +42,8 @@ export default async function AdminPage() {
       isAdmin
       types={["admin_contact"]}
       navLinks={ADMIN_NAV}
-      emptyHint="ابدأ بإنشاء حساب لأول شخص من صفحة المستخدمين"
+      emptyHint="لسه مفيش حد — اعمل حساب لأول شخص وهتلاقي الشات بينكم جاهز على طول"
+      emptyAction={{ href: "/admin/users", label: "اعمل أول حساب" }}
     />
   );
 }

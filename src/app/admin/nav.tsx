@@ -2,12 +2,18 @@ import {
   BroadcastIcon,
   ChartIcon,
   EyeIcon,
+  SendIcon,
   ShieldIcon,
   UsersIcon,
 } from "@/components/Icons";
 
 /** روابط لوحة التحكم — بتظهر فوق قايمة المحادثات في /admin */
 export const ADMIN_NAV = [
+  {
+    href: "/admin",
+    label: "المحادثات",
+    icon: <SendIcon width={14} height={14} />,
+  },
   {
     href: "/admin/users",
     label: "المستخدمين",
